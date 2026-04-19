@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Modal } from 'ant-design-vue'
 import { useAuthStore } from '@/stores/auth'
 
 console.log('LoginView mounted')
@@ -12,19 +13,17 @@ const loading = ref(false)
 
 const goRegister = () => {
   console.log('goRegister called')
-  import('ant-design-vue').then(({ Modal }) => {
-    Modal.confirm({
-      title: '选择注册类型',
-      content: '请选择您要注册的类型',
-      okText: '租户注册',
-      cancelText: '员工注册',
-      onOk: () => {
-        router.push({ path: '/register', query: { type: 'tenant' } })
-      },
-      onCancel: () => {
-        router.push({ path: '/register', query: { type: 'manager' } })
-      },
-    })
+  Modal.confirm({
+    title: '选择注册类型',
+    content: '请选择您要注册的类型',
+    okText: '租户注册',
+    cancelText: '员工注册',
+    onOk: () => {
+      router.push({ path: '/register', query: { type: 'tenant' } })
+    },
+    onCancel: () => {
+      router.push({ path: '/register', query: { type: 'manager' } })
+    },
   })
 }
 

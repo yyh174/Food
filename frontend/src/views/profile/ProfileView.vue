@@ -318,8 +318,7 @@ onMounted(() => {
   letter-spacing: 2px;
 }
 
-.invite-code-expire,
-.invite-code-shop {
+.invite-code-expire {
   margin-top: 8px;
   font-size: 12px;
   color: #666;

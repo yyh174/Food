@@ -6,17 +6,17 @@ import dayjs from 'dayjs'
 import BaseEditDialog from '../../components/base/BaseEditDialog.vue'
 import { getTenantList, getTenantDetail, createTenant, updateTenant, deleteTenant, regenerateInviteCode, getTenantShops, type TenantListParams } from '../../api/tenant'
 import type { TenantItem, TenantCreateForm, TenantEditForm } from '../../types/tenant'
-import type { ShopListItem } from '../../types/shop'
+import type { ShopItem } from '../../types/shop'
 
 const loading = ref(false)
 const shopLoading = ref(false)
 const dialogOpen = ref(false)
 const shopDetailOpen = ref(false)
-const shopDetail = ref<ShopListItem | null>(null)
+const shopDetail = ref<ShopItem | null>(null)
 const dialogMode = ref<'create' | 'edit'>('create')
 const selectedTenant = ref<TenantItem | null>(null)
 const tenantList = ref<TenantItem[]>([])
-const shopList = ref<ShopListItem[]>([])
+const shopList = ref<ShopItem[]>([])
 const shopTotal = ref(0)
 const shopParams = reactive({
   page: 1,

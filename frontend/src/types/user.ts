@@ -29,11 +29,13 @@ export interface UserCreateForm {
 }
 
 export interface UserEditForm {
-  realName: string
+  nickname?: string
+  realName?: string
   phone?: string
-  roleCode: string
+  email?: string
+  roleCode?: string
   shopId?: number
-  status: number
+  status?: number
 }
 
 export interface UserListParams {

@@ -21,6 +21,6 @@ public class UserDetailVO implements Serializable {
     private String tenantName;
     private Integer status;
     private String lastLoginTime;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
 }

@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
+import axios, { type AxiosInstance, type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios'
 import { message } from 'ant-design-vue'
 import router from '@/router'
 
@@ -43,95 +43,96 @@ export function removeUserInfo(): void {
   localStorage.removeItem(USER_INFO_KEY)
 }
 
-function createRequest(): AxiosInstance {
-  const instance = axios.create({
-    baseURL: '/api',
-    timeout: 30000,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+const instance: AxiosInstance = axios.create({
+  baseURL: '/api',
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
 
-  instance.interceptors.request.use(
-    (config: InternalAxiosRequestConfig) => {
-      const token = getToken()
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`
-      }
-      return config
-    },
-    (error) => {
-      return Promise.reject(error)
+instance.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const token = getToken()
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`
     }
-  )
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
 
-  instance.interceptors.response.use(
-    (response: AxiosResponse<ApiResponse>) => {
-      const { code, message: msg } = response.data
+instance.interceptors.response.use(
+  (response) => {
+    const data = response.data as ApiResponse<unknown>
+    const { code, message: msg } = data
 
-      if (code === 200 || code === 0) {
-        return response
-      }
+    if (code === 200 || code === 0) {
+      return response
+    }
 
-      if (code === 401) {
-        message.error(msg || '登录已过期，请重新登录')
+    if (code === 401) {
+      message.error(msg || '登录已过期，请重新登录')
+      removeToken()
+      removeUserInfo()
+      router.push('/login')
+      return Promise.reject(new Error(msg || '未登录'))
+    }
+
+    if (code === 403) {
+      message.error(msg || '无权限访问')
+      return Promise.reject(new Error(msg || '无权限访问'))
+    }
+
+    message.error(msg || '请求失败')
+    return Promise.reject(new Error(msg))
+  },
+  (error) => {
+    if (error.response) {
+      const { status, data } = error.response
+      if (status === 401) {
+        message.error('登录已过期，请重新登录')
         removeToken()
         removeUserInfo()
         router.push('/login')
-        return Promise.reject(new Error(msg || '未登录'))
-      }
-
-      if (code === 403) {
-        message.error(msg || '无权限访问')
-        return Promise.reject(new Error(msg || '无权限访问'))
-      }
-
-      message.error(msg || '请求失败')
-      return Promise.reject(new Error(msg))
-    },
-    (error) => {
-      if (error.response) {
-        const { status, data } = error.response
-        if (status === 401) {
-          message.error('登录已过期，请重新登录')
-          removeToken()
-          removeUserInfo()
-          router.push('/login')
-        } else if (status === 403) {
-          message.error('无权限访问')
-        } else if (status === 404) {
-          message.error('资源不存在')
-        } else if (status >= 500) {
-          message.error('服务器错误')
-        } else {
-          message.error(data?.message || '请求失败')
-        }
-      } else if (error.request) {
-        message.error('网络错误，请检查网络连接')
+      } else if (status === 403) {
+        message.error('无权限访问')
+      } else if (status === 404) {
+        message.error('资源不存在')
+      } else if (status >= 500) {
+        message.error('服务器错误')
       } else {
-        message.error('请求配置错误')
+        message.error(data?.message || '请求失败')
       }
-      return Promise.reject(error)
+    } else if (error.request) {
+      message.error('网络错误，请检查网络连接')
+    } else {
+      message.error('请求配置错误')
     }
-  )
+    return Promise.reject(error)
+  }
+)
 
-  return instance
+export const request = instance
+
+export async function get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  const res = await instance.get<ApiResponse<T>>(url, config)
+  return res.data.data
 }
 
-export const request = createRequest()
-
-export function get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-  return request.get(url, config)
+export async function post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+  const res = await instance.post<ApiResponse<T>>(url, data, config)
+  return res.data.data
 }
 
-export function post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-  return request.post(url, data, config)
+export async function put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+  const res = await instance.put<ApiResponse<T>>(url, data, config)
+  return res.data.data
 }
 
-export function put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-  return request.put(url, data, config)
-}
-
-export function del<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-  return request.delete(url, config)
+export async function del<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  const res = await instance.delete<ApiResponse<T>>(url, config)
+  return res.data.data
 }

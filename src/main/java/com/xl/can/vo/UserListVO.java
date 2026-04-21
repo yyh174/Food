@@ -17,5 +17,5 @@ public class UserListVO implements Serializable {
     private String shopName;
     private Integer status;
     private String lastLoginTime;
-    private LocalDateTime createdAt;
+    private String createdAt;
 }

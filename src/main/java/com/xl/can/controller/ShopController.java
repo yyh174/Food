@@ -98,6 +98,17 @@ public class ShopController {
     }
 
     /**
+     * 获取门店列表（用于筛选，返回所有营业中门店，不过滤分配状态）
+     * 租户管理员可访问，店长只能查看自己门店
+     */
+    @GetMapping("/select-options")
+    public Result<List<ShopListVO>> getShopSelectOptions() {
+        Long tenantId = UserContext.getUser().getTenantId();
+        String roleCode = UserContext.getUser().getRoleCode();
+        return shopService.getShopSelectOptions(tenantId, roleCode);
+    }
+
+    /**
      * 检查是否为租户管理员
      */
     private void checkTenantAdmin() {

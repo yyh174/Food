@@ -46,10 +46,34 @@ const router = createRouter({
           meta: { title: '用户管理', menuKey: '/users' },
         },
         {
+          path: 'reviews',
+          name: 'reviews',
+          component: () => import('../views/review/ReviewListView.vue'),
+          meta: { title: '评价管理', menuKey: '/reviews', roles: ['tenant_admin', 'shop_owner'] },
+        },
+        {
+          path: 'tickets',
+          name: 'tickets',
+          component: () => import('../views/ticket/TicketListView.vue'),
+          meta: { title: '工单管理', menuKey: '/tickets', roles: ['tenant_admin', 'shop_owner'] },
+        },
+        {
+          path: 'tickets/:id',
+          name: 'ticket-detail',
+          component: () => import('../views/ticket/TicketDetailView.vue'),
+          meta: { title: '工单详情', roles: ['tenant_admin', 'shop_owner'] },
+        },
+        {
           path: 'profile',
           name: 'profile',
           component: () => import('../views/profile/ProfileView.vue'),
           meta: { title: '个人中心' },
+        },
+        {
+          path: 'ai-assistant',
+          name: 'ai-assistant',
+          component: () => import('../views/ai/AiAssistantView.vue'),
+          meta: { title: 'AI助手', menuKey: '/ai-assistant', roles: ['tenant_admin', 'shop_owner'] },
         },
       ],
     },
@@ -74,6 +98,13 @@ router.beforeEach((to) => {
       const allowedPaths = ['/tenants', '/login']
       if (!allowedPaths.some(path => to.path.startsWith(path))) {
         return '/tenants'
+      }
+    }
+    // 租户管理员和门店店长只能访问评价管理页面
+    if (user.roleCode === 'tenant_admin' || user.roleCode === 'shop_owner') {
+      const meta = to.meta as { roles?: string[] }
+      if (meta?.roles && !meta.roles.includes(user.roleCode)) {
+        return '/dashboard'
       }
     }
   }

@@ -478,3 +478,66 @@ INSERT INTO ticket_timeline (ticket_id, tenant_id, action, operator_id, remark) 
 (1, 1, 'process', 3, '已联系维修人员，明天上门'),
 (2, 1, 'created', 2, '创建工单'),
 (2, 1, 'assigned', 2, '派单给店长1');
+
+-- =====================================================
+-- AI聊天会话表
+-- =====================================================
+CREATE TABLE ai_chat_session (
+  id BIGINT NOT NULL AUTO_INCREMENT COMMENT '会话ID',
+  tenant_id BIGINT NOT NULL COMMENT '租户ID',
+  shop_id BIGINT DEFAULT NULL COMMENT '门店ID(店长角色有值)',
+  user_id BIGINT NOT NULL COMMENT '用户ID',
+  title VARCHAR(100) DEFAULT NULL COMMENT '会话标题',
+  context_summary TEXT COMMENT '对话上下文摘要',
+  message_count_after_summary INT DEFAULT 0 COMMENT '摘要后消息数量',
+  estimated_tokens INT DEFAULT 0 COMMENT '估算token数',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (id),
+  KEY idx_tenant_id (tenant_id),
+  KEY idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AI聊天会话表';
+
+CREATE TABLE ai_chat_message (
+  id BIGINT NOT NULL AUTO_INCREMENT COMMENT '消息ID',
+  session_id BIGINT NOT NULL COMMENT '会话ID',
+  role VARCHAR(20) NOT NULL COMMENT '角色: user/assistant/system',
+  content TEXT NOT NULL COMMENT '消息内容',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (id),
+  KEY idx_session_id (session_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AI聊天消息表';
+
+USE food_saas;
+DROP TABLE IF EXISTS ai_chat_session;
+DROP TABLE IF EXISTS ai_chat_message;
+-- 然后重新执行 init.sql 的最后部分
+CREATE TABLE ai_chat_session (
+                                 id BIGINT NOT NULL AUTO_INCREMENT COMMENT '会话ID',
+                                 tenant_id BIGINT NOT NULL COMMENT '租户ID',
+                                 shop_id BIGINT DEFAULT NULL COMMENT '门店ID(店长角色有值)',
+                                 user_id BIGINT NOT NULL COMMENT '用户ID',
+                                 title VARCHAR(100) DEFAULT NULL COMMENT '会话标题',
+                                 context_summary TEXT COMMENT '对话上下文摘要',
+                                 message_count_after_summary INT DEFAULT 0 COMMENT '摘要后消息数量',
+                                 estimated_tokens INT DEFAULT 0 COMMENT '估算token数',
+                                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                                 PRIMARY KEY (id),
+                                 KEY idx_tenant_id (tenant_id),
+                                 KEY idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AI聊天会话表';
+
+CREATE TABLE ai_chat_message (
+                                 id BIGINT NOT NULL AUTO_INCREMENT COMMENT '消息ID',
+                                 session_id BIGINT NOT NULL COMMENT '会话ID',
+                                 role VARCHAR(20) NOT NULL COMMENT '角色: user/assistant/system',
+                                 content TEXT NOT NULL COMMENT '消息内容',
+                                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                 PRIMARY KEY (id),
+                                 KEY idx_session_id (session_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AI聊天消息表';
+
+ALTER TABLE ai_chat_session ADD COLUMN context_summary TEXT;
+ALTER TABLE ai_chat_session ADD COLUMN message_count_after_summary INT DEFAULT 0;
+ALTER TABLE ai_chat_session ADD COLUMN estimated_tokens INT DEFAULT 0;

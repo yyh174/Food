@@ -33,7 +33,7 @@ export const useAuthStore = defineStore('auth', () => {
     saveUserInfo(info as unknown as Record<string, unknown>)
   }
 
-  function updateUserInfo(info: Partial<LoginResponse>): void {
+  function updateUserInfo(info: { nickname?: string }): void {
     if (userInfo.value) {
       userInfo.value = { ...userInfo.value, ...info }
       saveUserInfo(userInfo.value as unknown as Record<string, unknown>)

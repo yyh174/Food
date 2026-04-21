@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, h, reactive, watch } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import type { TableColumnType, TableProps } from 'ant-design-vue'
 
 interface PaginationState {
   current: number
   pageSize: number
   total: number
+  showSizeChanger?: boolean
+  showQuickJumper?: boolean
 }
 
 const props = withDefaults(
@@ -25,6 +27,7 @@ const props = withDefaults(
       pageSize: number
       total: number
       showSizeChanger?: boolean
+      showQuickJumper?: boolean
       showTotal?: (total: number) => string
     }
     rowSelection?: TableProps['rowSelection']
@@ -53,6 +56,8 @@ const pagination = reactive<PaginationState>({
   current: props.pagination?.current || 1,
   pageSize: props.pagination?.pageSize || 10,
   total: props.pagination?.total || props.total,
+  showSizeChanger: props.pagination?.showSizeChanger,
+  showQuickJumper: props.pagination?.showQuickJumper,
 })
 
 watch(
@@ -62,6 +67,8 @@ watch(
       pagination.current = newPagination.current
       pagination.pageSize = newPagination.pageSize
       pagination.total = newPagination.total
+      pagination.showSizeChanger = newPagination.showSizeChanger
+      pagination.showQuickJumper = newPagination.showQuickJumper
     }
   },
   { deep: true },
@@ -74,28 +81,26 @@ watch(
   },
 )
 
-const tableColumns = computed(() =>
-  props.columns.map((column, index) => {
-    if (index !== 0) {
-      return column
+const handleRowClick = (record: Record<string, unknown>) => {
+  emit('first-column-click', record)
+}
+
+const tableColumns = computed(() => {
+  const cols = [...props.columns]
+  if (cols.length > 0) {
+    cols[0] = {
+      ...cols[0],
+      customCell: (record: Record<string, unknown>) => ({
+        class: 'base-table-link',
+        onClick: (e: Event) => {
+          e.stopPropagation()
+          emit('first-column-click', record)
+        },
+      }),
     }
-    const key = (column.dataIndex as string) || props.firstColumnKey
-    return {
-      ...column,
-      customRender: ({ record }: { record: Record<string, unknown> }) => {
-        const value = record[key]
-        return h(
-          'a',
-          {
-            class: 'base-table-link',
-            onClick: () => emit('first-column-click', record),
-          },
-          String(value ?? ''),
-        )
-      },
-    }
-  }),
-)
+  }
+  return cols
+})
 
 const handleSearch = () => {
   pagination.current = 1
@@ -114,13 +119,13 @@ const handleRefresh = () => {
 const handlePageChange = (page: number, pageSize: number) => {
   pagination.current = page
   pagination.pageSize = pageSize
-  emit('query', { page, pageSize })
+  emit('change', { current: page, pageSize })
 }
 
 const handleChange = (pag: { current: number; pageSize: number }) => {
   pagination.current = pag.current
   pagination.pageSize = pag.pageSize
-  emit('query', { page: pag.current, pageSize: pag.pageSize })
+  emit('change', { current: pag.current, pageSize: pag.pageSize })
 }
 
 const query = handleSearch
@@ -160,7 +165,14 @@ defineExpose({
       :row-selection="rowSelection"
       size="middle"
       @change="handleChange"
+      @row-click="handleRowClick"
     >
+      <template #customFilterIcon>
+        <slot name="customFilterIcon" />
+      </template>
+      <template #customFilterDropdown>
+        <slot name="customFilterDropdown" />
+      </template>
       <template v-for="(_, name) in $slots" #[name]="slotProps">
         <slot :name="name" v-bind="slotProps || {}" />
       </template>
@@ -172,8 +184,8 @@ defineExpose({
         :current="pagination.current"
         :page-size="pagination.pageSize"
         :total="pagination.total"
-        show-size-changer
-        show-quick-jumper
+        :show-size-changer="pagination.showSizeChanger !== false"
+        :show-quick-jumper="pagination.showQuickJumper === true"
         :page-size-options="['10', '20', '50']"
         @change="handlePageChange"
       />

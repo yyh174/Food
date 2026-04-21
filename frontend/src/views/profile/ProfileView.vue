@@ -109,8 +109,9 @@ const handleRegenerate = async () => {
       inviteCode: res.inviteCode,
       expireTime: res.expireTime,
     }
-  } catch (e: any) {
-    message.error(e.message || '重新生成失败')
+  } catch (e: unknown) {
+    const err = e as Error
+    message.error(err.message || '重新生成失败')
   } finally {
     inviteCodeLoading.value = false
   }
@@ -125,17 +126,21 @@ const handleCopy = () => {
 
 const handleSave = async () => {
   try {
-    await Promise.resolve()
     saving.value = true
-    await updateUserApi({
+    const userId = authStore.userInfo?.userId
+    if (!userId) {
+      throw new Error('无法获取用户信息')
+    }
+    await updateUserApi(userId, {
       nickname: formState.value.nickname,
       phone: formState.value.phone,
       email: formState.value.email,
     })
     message.success('保存成功')
     authStore.updateUserInfo({ nickname: formState.value.nickname })
-  } catch (e: any) {
-    message.error(e.message || '保存失败')
+  } catch (e: unknown) {
+    const err = e as Error
+    message.error(err.message || '保存失败')
   } finally {
     saving.value = false
   }
@@ -156,8 +161,9 @@ const handleChangePassword = async () => {
       newPassword: '',
       confirmPassword: '',
     }
-  } catch (e: any) {
-    message.error(e.message || '密码修改失败')
+  } catch (e: unknown) {
+    const err = e as Error
+    message.error(err.message || '密码修改失败')
   } finally {
     passwordLoading.value = false
   }

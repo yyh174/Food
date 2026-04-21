@@ -1,4 +1,4 @@
-import { request } from '@/utils/request'
+import { get, post, put } from '@/utils/request'
 import type { PageResult } from '@/utils/request'
 
 export interface InviteCodeResponse {
@@ -25,25 +25,21 @@ export interface InviteCodeListParams {
 }
 
 export async function generateInviteCode(): Promise<InviteCodeResponse> {
-  const res = await request.post<InviteCodeResponse>('/invite-code/generate', {})
-  return res.data.data
+  return post<InviteCodeResponse>('/invite-code/generate', {})
 }
 
 export async function getInviteCodeList(params: InviteCodeListParams): Promise<PageResult<InviteCodeDetailResponse>> {
-  const res = await request.get<PageResult<InviteCodeDetailResponse>>('/invite-code/list', { params })
-  return res.data.data
+  return get<PageResult<InviteCodeDetailResponse>>('/invite-code/list', { params })
 }
 
 export async function invalidateInviteCode(id: number): Promise<void> {
-  await request.put(`/invite-code/invalidate/${id}`, {})
+  await put(`/invite-code/invalidate/${id}`, {})
 }
 
 export async function getLatestInviteCode(): Promise<InviteCodeDetailResponse | null> {
-  const res = await request.get<InviteCodeDetailResponse | null>('/invite-code/latest')
-  return res.data.data
+  return get<InviteCodeDetailResponse | null>('/invite-code/latest')
 }
 
 export async function regenerateInviteCode(): Promise<InviteCodeResponse> {
-  const res = await request.post<InviteCodeResponse>('/invite-code/regenerate', {})
-  return res.data.data
+  return post<InviteCodeResponse>('/invite-code/regenerate', {})
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xl.can.common.PageResult;
 import com.xl.can.common.Result;
 import com.xl.can.common.ResultCode;
+import com.xl.can.context.UserContext;
 import com.xl.can.dto.ShopCreateRequest;
 import com.xl.can.dto.ShopStatusRequest;
 import com.xl.can.dto.ShopUpdateRequest;
@@ -349,5 +350,37 @@ public class ShopService {
                 .collect(Collectors.toList());
 
         return Result.success(availableShops);
+    }
+
+    /**
+     * 获取门店筛选选项列表（返回所有营业中门店，不过滤分配状态）
+     * 租户管理员：返回租户下所有营业中门店
+     * 店长：只返回自己关联的门店
+     */
+    public Result<List<ShopListVO>> getShopSelectOptions(Long tenantId, String roleCode) {
+        LambdaQueryWrapper<Shop> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Shop::getTenantId, tenantId)
+                .eq(Shop::getStatus, 1)
+                .orderByAsc(Shop::getShopName);
+
+        if ("shop_owner".equals(roleCode)) {
+            SysUser user = UserContext.getUser();
+            if (user.getShopId() != null) {
+                wrapper.eq(Shop::getId, user.getShopId());
+            } else {
+                return Result.success(java.util.Collections.emptyList());
+            }
+        }
+
+        List<Shop> shops = shopMapper.selectList(wrapper);
+        List<ShopListVO> voList = shops.stream()
+                .map(shop -> {
+                    ShopListVO vo = new ShopListVO();
+                    BeanUtils.copyProperties(shop, vo);
+                    return vo;
+                })
+                .collect(Collectors.toList());
+
+        return Result.success(voList);
     }
 }

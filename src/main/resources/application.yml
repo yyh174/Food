@@ -9,6 +9,12 @@ spring:
     url: jdbc:mysql://localhost:3306/food_saas?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: root123
+  ai:
+    dashscope:
+      api-key: sk-a836e3a8a5bb4016a567310851b05620
+      chat:
+        options:
+          model: tongyi-xiaomi-analysis-flash
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
@@ -23,3 +29,11 @@ mybatis-plus:
 jwt:
   secret: XlCan2024SecretKeyForJwtTokenGenerationMustBeLongEnough123456
   expiration: 86400000  # 24小时
+
+review:
+  monitor:
+    enabled: true
+    cron: "0 */5 * * * ?"  # 每5分钟执行一次
+    star-threshold: 3       # 差评阈值（小于等于此星级的评价会被处理）
+    scan-window-minutes: 30 # 扫描时间窗口（分钟）
+    auto-create-ticket: true # 是否自动创建工单

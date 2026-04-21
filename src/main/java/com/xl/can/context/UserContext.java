@@ -33,6 +33,11 @@ public class UserContext {
         return user != null ? user.getTenantId() : null;
     }
 
+    public static Long getShopId() {
+        SysUser user = getUser();
+        return user != null ? user.getShopId() : null;
+    }
+
     public static void remove() {
         userThreadLocal.remove();
     }

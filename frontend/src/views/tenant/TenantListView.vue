@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { reactive, ref, computed, onMounted, h } from 'vue'
-import { message, Modal, type TableColumnType, Descriptions } from 'ant-design-vue'
+import { reactive, ref, onMounted, h } from 'vue'
+import { message, Modal, type TableColumnType } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form/interface'
 import dayjs from 'dayjs'
 import BaseEditDialog from '../../components/base/BaseEditDialog.vue'
@@ -35,7 +35,7 @@ const formModel = reactive<TenantCreateForm & { status: number }>({
   contactName: '',
   contactPhone: '',
   apiQuota: 1000,
-  expireTime: null as string | dayjs.Dayjs | null,
+  expireTime: undefined as string | undefined,
   status: 1,
 })
 
@@ -125,7 +125,7 @@ const onCreate = () => {
     contactName: '',
     contactPhone: '',
     apiQuota: 1000,
-    expireTime: null,
+    expireTime: undefined,
     status: 1,
   })
   dialogOpen.value = true
@@ -142,7 +142,7 @@ const onEdit = async () => {
       contactName: detail.contactName || '',
       contactPhone: detail.contactPhone || '',
       apiQuota: detail.apiQuota || 1000,
-      expireTime: detail.expireTime ? dayjs(detail.expireTime) : null,
+      expireTime: detail.expireTime ? dayjs(detail.expireTime).format('YYYY-MM-DD HH:mm:ss') : undefined,
       status: detail.status,
     })
     dialogOpen.value = true
@@ -159,7 +159,7 @@ const onDialogReset = () => {
       contactName: '',
       contactPhone: '',
       apiQuota: 1000,
-      expireTime: null,
+      expireTime: undefined,
       status: 1,
     })
   }
@@ -168,12 +168,13 @@ const onDialogReset = () => {
 const submitDialog = async () => {
   try {
     // 处理到期时间：dayjs对象或字符串都转为后端格式
-    const formatExpireTime = (val: string | dayjs.Dayjs | null): string | undefined => {
+    const formatExpireTime = (val: string | undefined): string | undefined => {
       if (!val) return undefined
-      if (dayjs.isDayjs(val)) {
-        return val.format('YYYY-MM-DD HH:mm:ss')
+      // 如果是 dayjs 格式的 ISO 字符串，转换为后端格式
+      if (val.includes('T')) {
+        return val.replace('T', ' ').substring(0, 19)
       }
-      return val.replace('T', ' ') + ':00'
+      return val
     }
 
     if (dialogMode.value === 'create') {
@@ -223,14 +224,15 @@ const submitDialog = async () => {
 
 const onDelete = () => {
   if (!selectedTenant.value) return
+  const tenantToDelete = selectedTenant.value
   Modal.confirm({
     title: '确认删除',
-    content: `确定要删除租户"${selectedTenant.value.tenantName}"吗？删除后该租户下所有数据保留，但用户无法登录。`,
+    content: `确定要删除租户"${tenantToDelete.tenantName}"吗？删除后该租户下所有数据保留，但用户无法登录。`,
     okText: '确认删除',
     okType: 'danger',
     onOk: async () => {
       try {
-        await deleteTenant(selectedTenant.value.id)
+        await deleteTenant(tenantToDelete.id)
         message.success('删除成功')
         dialogOpen.value = false  // 关闭编辑弹窗
         selectedTenant.value = null
@@ -283,7 +285,7 @@ const onShopFilter = () => {
 const onShopView = async (record: Record<string, unknown>) => {
   try {
     const detail = await getTenantShops(selectedTenant.value!.id, { page: 1, pageSize: 100, keyword: record.shopCode as string })
-    const found = detail.records.find((s: ShopListItem) => s.id === record.id)
+    const found = detail.records.find((s: ShopItem) => s.id === record.id)
     if (found) {
       shopDetail.value = found
       shopDetailOpen.value = true
@@ -412,10 +414,10 @@ onMounted(() => {
         v-model:value="formModel.expireTime"
         show-time
         format="YYYY-MM-DD HH:mm:ss"
+        value-format="YYYY-MM-DD HH:mm:ss"
         style="width: 100%"
         placeholder="选择到期时间"
         :disabled-date="(current: dayjs.Dayjs) => current && current < dayjs().startOf('day')"
-        :show-time="{ defaultValue: dayjs('23:59:59', 'HH:mm:ss') }"
       />
     </a-form-item>
     <a-form-item v-if="dialogMode === 'edit'" label="状态" name="status">

@@ -101,7 +101,7 @@ public class AuthService {
             }
         }
 
-        String token = jwtUtils.generateToken(user.getId(), user.getUsername(), user.getRoleCode());
+        String token = jwtUtils.generateToken(user.getId(), user.getUsername(), user.getRoleCode(), user.getTenantId(), user.getShopId());
 
         LoginResponse response = LoginResponse.builder()
                 .token(token)
@@ -194,7 +194,7 @@ public class AuthService {
 
         Tenant tenant = tenantMapper.selectById(inviteCode.getTenantId());
 
-        String token = jwtUtils.generateToken(user.getId(), user.getUsername(), user.getRoleCode());
+        String token = jwtUtils.generateToken(user.getId(), user.getUsername(), user.getRoleCode(), user.getTenantId(), null);
 
         LoginResponse response = LoginResponse.builder()
                 .token(token)

@@ -1,6 +1,6 @@
-import type { PageResult } from '../types/common'
+import type { PageResult } from '../utils/request'
 import type { TenantItem, TenantDetail, TenantCreateForm, TenantEditForm, TenantCreateResult } from '../types/tenant'
-import type { ShopListItem } from '../types/shop'
+import type { ShopItem } from '../types/shop'
 import { get, post, put, del } from '../utils/request'
 
 export interface TenantListParams {
@@ -10,7 +10,7 @@ export interface TenantListParams {
   status?: number
 }
 
-export interface ShopListParams {
+export interface TenantShopListParams {
   page?: number
   pageSize?: number
   keyword?: string
@@ -19,20 +19,17 @@ export interface ShopListParams {
 
 // 获取租户列表
 export async function getTenantList(params: TenantListParams = {}): Promise<PageResult<TenantItem>> {
-  const res = await get<PageResult<TenantItem>>('/tenants', { params })
-  return res.data.data
+  return get<PageResult<TenantItem>>('/tenants', { params })
 }
 
 // 获取租户详情
 export async function getTenantDetail(id: number): Promise<TenantDetail> {
-  const res = await get<TenantDetail>(`/tenants/${id}`)
-  return res.data.data
+  return get<TenantDetail>(`/tenants/${id}`)
 }
 
 // 创建租户
 export async function createTenant(data: TenantCreateForm): Promise<TenantCreateResult> {
-  const res = await post<TenantCreateResult>('/tenants', data)
-  return res.data.data
+  return post<TenantCreateResult>('/tenants', data)
 }
 
 // 更新租户
@@ -47,12 +44,10 @@ export async function deleteTenant(id: number): Promise<void> {
 
 // 重置邀请码
 export async function regenerateInviteCode(id: number): Promise<string> {
-  const res = await post<string>(`/tenants/${id}/invite-code/regenerate`)
-  return res.data.data
+  return post<string>(`/tenants/${id}/invite-code/regenerate`)
 }
 
 // 获取租户门店列表
-export async function getTenantShops(tenantId: number, params: ShopListParams = {}): Promise<PageResult<ShopListItem>> {
-  const res = await get<PageResult<ShopListItem>>(`/tenants/${tenantId}/shops`, { params })
-  return res.data.data
+export async function getTenantShops(tenantId: number, params: TenantShopListParams = {}): Promise<PageResult<ShopItem>> {
+  return get<PageResult<ShopItem>>(`/tenants/${tenantId}/shops`, { params })
 }

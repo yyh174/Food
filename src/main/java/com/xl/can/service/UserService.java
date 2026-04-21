@@ -90,6 +90,9 @@ public class UserService {
             if (user.getLastLoginTime() != null) {
                 vo.setLastLoginTime(user.getLastLoginTime().format(DATE_TIME_FORMATTER));
             }
+            if (user.getCreatedAt() != null) {
+                vo.setCreatedAt(user.getCreatedAt().format(DATE_TIME_FORMATTER));
+            }
             return vo;
         }).collect(Collectors.toList());
 
@@ -135,6 +138,12 @@ public class UserService {
 
         if (user.getLastLoginTime() != null) {
             vo.setLastLoginTime(user.getLastLoginTime().format(DATE_TIME_FORMATTER));
+        }
+        if (user.getCreatedAt() != null) {
+            vo.setCreatedAt(user.getCreatedAt().format(DATE_TIME_FORMATTER));
+        }
+        if (user.getUpdatedAt() != null) {
+            vo.setUpdatedAt(user.getUpdatedAt().format(DATE_TIME_FORMATTER));
         }
 
         return Result.success(vo);
@@ -195,7 +204,7 @@ public class UserService {
         vo.setRealName(user.getRealName());
         vo.setRoleCode(user.getRoleCode());
         vo.setStatus(user.getStatus());
-        vo.setCreatedAt(user.getCreatedAt());
+        vo.setCreatedAt(user.getCreatedAt().format(DATE_TIME_FORMATTER));
 
         return Result.success("创建成功", vo);
     }

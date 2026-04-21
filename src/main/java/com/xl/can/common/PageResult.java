@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -17,5 +18,9 @@ public class PageResult<T> {
 
     public static <T> PageResult<T> of(List<T> records, Long total, Integer page, Integer pageSize) {
         return new PageResult<>(records, total, page, pageSize);
+    }
+
+    public static <T> PageResult<T> empty() {
+        return new PageResult<>(new ArrayList<>(), 0L, 1, 10);
     }
 }

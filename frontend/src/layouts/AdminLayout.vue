@@ -9,6 +9,9 @@ import {
   ApartmentOutlined,
   ShopOutlined,
   UserOutlined,
+  MessageOutlined,
+  FileTextOutlined,
+  RobotOutlined,
 } from '@ant-design/icons-vue'
 
 const route = useRoute()
@@ -22,9 +25,9 @@ const selectedKeys = computed(() => {
   if (authStore.isSuperAdmin) {
     routes = ['/tenants']
   } else if (authStore.isTenantAdmin) {
-    routes = ['/dashboard', '/shops', '/users']
+    routes = ['/dashboard', '/tickets', '/shops', '/users', '/reviews', '/ai-assistant']
   } else if (authStore.isShopOwner) {
-    routes = ['/dashboard', '/shops']
+    routes = ['/dashboard', '/tickets', '/reviews', '/ai-assistant']
   }
   const matched = routes.find(key => route.path.startsWith(key))
   return matched ? [matched] : [routes[0]]
@@ -85,17 +88,23 @@ const logout = () => {
               <UserOutlined />
               <span>用户管理</span>
             </a-menu-item>
-            <a-menu-item v-if="authStore.isShopOwner" key="/shops">
-              <ShopOutlined />
-              <span>门店管理</span>
+            <a-menu-item v-if="authStore.isTenantAdmin || authStore.isShopOwner" key="/reviews">
+              <MessageOutlined />
+              <span>评价管理</span>
+            </a-menu-item>
+            <a-menu-item v-if="authStore.isTenantAdmin || authStore.isShopOwner" key="/tickets">
+              <FileTextOutlined />
+              <span>工单管理</span>
+            </a-menu-item>
+            <a-menu-item v-if="authStore.isTenantAdmin || authStore.isShopOwner" key="/ai-assistant">
+              <RobotOutlined />
+              <span>AI助手</span>
             </a-menu-item>
           </template>
         </a-menu>
       </a-layout-sider>
       <a-layout-content class="admin-content">
-        <div class="app-main-container">
-          <router-view />
-        </div>
+        <router-view />
       </a-layout-content>
     </a-layout>
   </a-layout>
@@ -103,12 +112,15 @@ const logout = () => {
 
 <style scoped>
 .admin-layout {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .admin-header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 10;
   height: 56px;
   padding: 0 16px;
@@ -150,10 +162,35 @@ const logout = () => {
 }
 
 .admin-body {
-  min-height: calc(100vh - 56px);
+  height: 100vh;
+  padding-top: 56px;
+  overflow: hidden;
+}
+
+:deep(.ant-layout-sider) {
+  position: fixed;
+  left: 0;
+  top: 56px;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 9;
 }
 
 .admin-content {
+  margin-left: 220px;
+  height: calc(100vh - 56px);
+  overflow: auto;
   background: #f6f8fa;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+:deep(.admin-content > *) {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+:deep(.ant-layout-sider-collapsed) + .admin-content {
+  margin-left: 80px;
 }
 </style>

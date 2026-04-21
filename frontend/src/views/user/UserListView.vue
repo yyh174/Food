@@ -64,7 +64,7 @@ const loadShopList = async () => {
       const currentShopInList = shopList.value.some(s => s.id === selectedRow.value!.shopId)
       if (!currentShopInList) {
         const fullRes = await getShopListApi({ page: 1, pageSize: 1000 })
-        const currentShop = fullRes.records.find(s => s.id === selectedRow.value!.shopId)
+        const currentShop = fullRes.records.find((s: ShopItem) => s.id === selectedRow.value!.shopId)
         if (currentShop) {
           shopList.value = [currentShop, ...shopList.value]
         }
@@ -205,14 +205,6 @@ const onResetPassword = () => {
 
 const mapStatusText = (status: number) => (status === 1 ? '正常' : '禁用')
 
-const onReset = () => {
-  filters.keyword = ''
-  filters.roleCode = undefined
-  filters.status = undefined
-  pagination.current = 1
-  void loadData()
-}
-
 const onSearch = () => {
   pagination.current = 1
   void loadData()
@@ -248,9 +240,7 @@ watch(
       showQuickJumper: true,
       showTotal: (total: number) => `共 ${total} 条`,
     }"
-    @query="() => loadData()"
-    @reset="onReset"
-    @refresh="() => loadData()"
+    :hide-default-actions="true"
     @first-column-click="onRowClick"
     @change="onTableChange"
   >
@@ -266,15 +256,11 @@ watch(
         <a-select-option value="tenant_admin">租户管理员</a-select-option>
         <a-select-option value="shop_owner">门店店长</a-select-option>
       </a-select>
-      <a-select v-model:value="filters.status" allow-clear placeholder="状态筛选" style="width: 100px">
-        <a-select-option :value="1">正常</a-select-option>
-        <a-select-option :value="0">禁用</a-select-option>
-      </a-select>
     </template>
     <template #actions>
       <a-button type="primary" @click="onCreate">新增</a-button>
     </template>
-    <template #bodyCell="{ column, text, record }">
+    <template #bodyCell="{ column, text }">
       <template v-if="column.dataIndex === 'status'">
         <a-tag :color="Number(text) === 1 ? 'green' : 'red'">
           {{ mapStatusText(Number(text)) }}

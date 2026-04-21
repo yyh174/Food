@@ -6,7 +6,6 @@ import BaseEditDialog from '../../components/base/BaseEditDialog.vue'
 import BaseTableList from '../../components/base/BaseTableList.vue'
 import {
   getShopListApi,
-  getShopDetailApi,
   createShopApi,
   updateShopApi,
   deleteShopApi,

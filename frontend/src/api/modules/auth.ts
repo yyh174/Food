@@ -1,4 +1,4 @@
-import { request } from '@/utils/request'
+import { get, post, put } from '@/utils/request'
 
 export interface LoginRequest {
   username: string
@@ -42,29 +42,25 @@ export interface ChangePasswordRequest {
 }
 
 export async function login(data: LoginRequest): Promise<LoginResponse> {
-  const res = await request.post<LoginResponse>('/auth/login', data)
-  return res.data.data
+  return post<LoginResponse>('/auth/login', data)
 }
 
 export async function register(data: RegisterRequest): Promise<UserResponse> {
-  const res = await request.post<UserResponse>('/auth/register', data)
-  return res.data.data
+  return post<UserResponse>('/auth/register', data)
 }
 
 export async function shopManagerRegister(data: ShopManagerRegisterRequest): Promise<LoginResponse> {
-  const res = await request.post<LoginResponse>('/auth/register/shop-manager', data)
-  return res.data.data
+  return post<LoginResponse>('/auth/register/shop-manager', data)
 }
 
 export async function resetPassword(userId: number): Promise<void> {
-  await request.put(`/auth/password/reset/${userId}`, {})
+  await put(`/auth/password/reset/${userId}`, {})
 }
 
 export async function changePassword(data: ChangePasswordRequest): Promise<void> {
-  await request.put('/auth/password/change', data)
+  await put('/auth/password/change', data)
 }
 
 export async function getCurrentUser(): Promise<LoginResponse> {
-  const res = await request.get<LoginResponse>('/auth/current-user')
-  return res.data.data
+  return get<LoginResponse>('/auth/current-user')
 }

@@ -12,5 +12,5 @@ public class UserCreateVO implements Serializable {
     private String realName;
     private String roleCode;
     private Integer status;
-    private LocalDateTime createdAt;
+    private String createdAt;
 }
